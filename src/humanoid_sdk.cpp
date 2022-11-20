@@ -105,7 +105,6 @@ size_t HumanoidSDK::send_cmd_with_data(uint16_t cmd_id, const uint8_t *p_data, u
 
     if (serial_port.isOpen()) {
         try {
-            //FIXME: write operation takes about 100ms in windows.
             serial_port.write(frame_buffer, frame_size);
         } catch (serial::IOException &e) {
             handle_serial_error(e);

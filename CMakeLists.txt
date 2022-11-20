@@ -17,7 +17,9 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
-add_link_options(-static)
+if (WIN32)
+    add_link_options(-static)
+endif ()
 
 add_subdirectory(third_party/fmt)
 add_subdirectory(third_party/serial)

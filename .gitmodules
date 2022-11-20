@@ -1,0 +1,9 @@
+[submodule "third_party/fmt"]
+	path = third_party/fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "third_party/pybind11"]
+	path = third_party/pybind11
+	url = https://github.com/pybind/pybind11.git
+[submodule "third_party/serial"]
+	path = third_party/serial
+	url = https://github.com/chinaheyu/serial_lite.git

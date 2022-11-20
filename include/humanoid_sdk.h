@@ -100,6 +100,8 @@ namespace humanoid_sdk {
 
         void communication();
 
+        void handle_serial_error(serial::IOException &e);
+
         void dispatch_frame(uint16_t cmd_id, const uint8_t *p_data, uint16_t len);
 
         size_t send_cmd_with_data(uint16_t cmd_id, const uint8_t *p_data, uint16_t len);

@@ -1,5 +1,4 @@
 #include "humanoid_sdk.h"
-#include <utility>
 
 using namespace humanoid_sdk;
 
@@ -35,7 +34,7 @@ void HumanoidSDK::connect(const std::string &port_name) {
     auto timeout = serial::Timeout::simpleTimeout(200);
 
     serial_port.setPort(port_name);
-    serial_port.setBaudrate(115200);
+    serial_port.setBaudrate(921600);
     serial_port.setTimeout(timeout);
     serial_port.setBytesize(serial::eightbits);
     serial_port.setParity(serial::parity_none);
@@ -56,7 +55,8 @@ void HumanoidSDK::communication() {
                 try {
                     connect(serial_name);
                 } catch (serial::IOException &e) {
-                    continue;
+                    fmt::print("Cannot open serial: {}, {}\n", serial_name, e.what());
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
             }
         }
@@ -69,7 +69,7 @@ void HumanoidSDK::communication() {
                     }
                 }
             } catch (serial::IOException &e) {
-                serial_port.close();
+                handle_serial_error(e);
             }
         }
     }
@@ -105,9 +105,10 @@ size_t HumanoidSDK::send_cmd_with_data(uint16_t cmd_id, const uint8_t *p_data, u
 
     if (serial_port.isOpen()) {
         try {
+            //FIXME: write operation takes about 100ms in windows.
             serial_port.write(frame_buffer, frame_size);
         } catch (serial::IOException &e) {
-            serial_port.close();
+            handle_serial_error(e);
             return 0;
         }
     }
@@ -127,21 +128,24 @@ void HumanoidSDK::remove_cmd_callback(uint16_t cmd_id) {
 
 bool HumanoidSDK::rpc_call(uint16_t request_cmd_id, const void *request_data, uint16_t request_size,
                            uint16_t response_cmd_id, void *response_data, const std::chrono::milliseconds &timeout) {
-    std::mutex m;
-    std::condition_variable cv;
+    std::mutex rpc_mutex;
+    std::condition_variable rpc_condition_variable;
 
     register_cmd_callback(response_cmd_id, [&](const std::vector<uint8_t> &data) {
         {
-            std::lock_guard<std::mutex> lock(m);
+            std::lock_guard<std::mutex> lock(rpc_mutex);
             memcpy(response_data, data.data(), data.size());
         }
-        cv.notify_one();
+        rpc_condition_variable.notify_one();
     });
 
     send_cmd_with_data(request_cmd_id, (uint8_t*)request_data, request_size);
 
-    std::unique_lock<std::mutex> lk(m);
-    std::cv_status ret = cv.wait_for(lk, timeout);
+    std::cv_status ret;
+    {
+        std::unique_lock<std::mutex> lk(rpc_mutex);
+        ret = rpc_condition_variable.wait_for(lk, timeout);
+    }
 
     remove_cmd_callback(response_cmd_id);
 
@@ -356,4 +360,12 @@ bool HumanoidSDK::linear_actuator_broadcast_follows(const std::vector<uint8_t> &
     return true;
 }
 
+void HumanoidSDK::handle_serial_error(serial::IOException &e) {
+    fmt::print(stderr, "Serial port error: {}\n", e.what());
+    try {
+        serial_port.close();
+    } catch (serial::IOException& ee) {
+        fmt::print(stderr, "Close serial port error: {}\n", ee.what());
+    }
+}
 

@@ -4,7 +4,7 @@
 
 
 int main(int argc, char* argv[]) {
-    humanoid_sdk::HumanoidSDK sdk;
+    humanoid_sdk::HumanoidSDK& sdk = humanoid_sdk::HumanoidSDK::get_instance();
 
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -33,7 +33,14 @@ namespace humanoid_sdk {
     class HumanoidSDK {
 
     public:
-        HumanoidSDK();
+        static HumanoidSDK& get_instance()
+        {
+            static HumanoidSDK instance;
+            return instance;
+        }
+
+        HumanoidSDK(HumanoidSDK const&) = delete;
+        void operator=(HumanoidSDK const&) = delete;
 
         ~HumanoidSDK();
 
@@ -76,6 +83,8 @@ namespace humanoid_sdk {
         bool linear_actuator_broadcast_follows(const std::vector<uint8_t>& ids, const std::vector<uint16_t>& targets);
 
     private:
+        HumanoidSDK();
+
         std::atomic<bool> is_running;
         serial::Serial serial_port;
         std::thread communication_thread;

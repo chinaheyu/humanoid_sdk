@@ -130,12 +130,22 @@ public:
         return uid;
     }
 
-    float read_temperature(){
+    float read_temperature() {
         float temperature;
         if(!sdk.read_temperature(temperature)) {
             throw std::runtime_error("Timeout");
         }
         return temperature;
+    }
+
+    void write_console(const std::string &s) {
+        sdk.write_console(s);
+    }
+
+    std::string console_output() {
+        std::string s;
+        sdk.console_output(s);
+        return s;
     }
 
 private:
@@ -151,7 +161,9 @@ PYBIND11_MODULE(py_humanoid_sdk, m) {
         .def_readonly("maestro", &HumanoidSDK::maestro)
         .def("is_connected", &HumanoidSDK::is_connected)
         .def("read_uid", &HumanoidSDK::read_uid)
-        .def("read_temperature", &HumanoidSDK::read_temperature);
+        .def("read_temperature", &HumanoidSDK::read_temperature)
+        .def("write_console", &HumanoidSDK::write_console)
+        .def("console_output", &HumanoidSDK::console_output);
 
     py::class_<LinearActuator>(m, "LinearActuator")
         .def(py::init<>())

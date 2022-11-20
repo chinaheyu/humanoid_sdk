@@ -21,6 +21,7 @@ namespace humanoid_sdk {
     using ReceivedCallback = std::function<void(const std::vector<uint8_t> &)>;
 
     struct LinearActuatorFeedback {
+        uint8_t id;
         uint16_t target_position;
         uint16_t current_position;
         uint8_t temperature;
@@ -72,13 +73,13 @@ namespace humanoid_sdk {
 
         bool set_maestro_channel(uint8_t channel, uint16_t target);
 
-        bool set_maestro_all_channel(std::vector<uint16_t> targets);
+        bool set_maestro_all_channel(const std::vector<uint16_t>& targets);
 
         bool linear_actuator_set_target_silent(uint8_t id, uint16_t target);
 
         bool linear_actuator_follow_silent(uint8_t id, uint16_t target);
 
-        bool cmd_linear_actuator_broadcast_targets(const std::vector<uint8_t>& ids, const std::vector<uint16_t>& targets);
+        bool linear_actuator_broadcast_targets(const std::vector<uint8_t>& ids, const std::vector<uint16_t>& targets);
 
         bool linear_actuator_broadcast_follows(const std::vector<uint8_t>& ids, const std::vector<uint16_t>& targets);
 

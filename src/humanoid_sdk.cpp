@@ -60,18 +60,17 @@ void HumanoidSDK::communication() {
                 }
             }
         }
-
-        try {
-            while (serial_port.available()) {
+        else {
+            try {
                 uint8_t ch;
                 if (serial_port.read(&ch, 1)) {
                     if (protocol_unpack_byte(&unpack_data_obj, ch)) {
                         dispatch_frame(unpack_data_obj.cmd_id, unpack_data_obj.data, unpack_data_obj.data_len);
                     }
                 }
+            } catch (serial::IOException &e) {
+                serial_port.close();
             }
-        } catch (serial::IOException &e) {
-            serial_port.close();
         }
     }
 }
@@ -211,6 +210,7 @@ bool HumanoidSDK::linear_actuator_enable(uint8_t id, LinearActuatorFeedback &fee
 
 void HumanoidSDK::linear_actuator_response_to_feedback(cmd_linear_actuator_feedback_t &res,
                                                        LinearActuatorFeedback &feedback) {
+    feedback.id = res.id;
     feedback.target_position = res.target_position;
     feedback.current_position = res.current_position;
     feedback.temperature = res.temperature;
@@ -306,7 +306,7 @@ bool HumanoidSDK::set_maestro_channel(uint8_t channel, uint16_t target) {
     return true;
 }
 
-bool HumanoidSDK::set_maestro_all_channel(std::vector<uint16_t> targets) {
+bool HumanoidSDK::set_maestro_all_channel(const std::vector<uint16_t>& targets) {
     cmd_set_maestro_all_channel_t msg;
     for (size_t i = 0; i < std::min<size_t>(targets.size(), 24); ++i) {
         msg.targets[i] = targets[i];
@@ -331,7 +331,7 @@ bool HumanoidSDK::linear_actuator_follow_silent(uint8_t id, uint16_t target) {
     return true;
 }
 
-bool HumanoidSDK::cmd_linear_actuator_broadcast_targets(const std::vector<uint8_t> &ids,
+bool HumanoidSDK::linear_actuator_broadcast_targets(const std::vector<uint8_t> &ids,
                                                         const std::vector<uint16_t> &targets) {
     cmd_linear_actuator_broadcast_targets_t msg;
     size_t cnt = std::min<size_t>(std::min<size_t>(ids.size(), targets.size()), 10);

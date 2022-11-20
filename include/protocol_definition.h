@@ -23,7 +23,7 @@ extern "C"
 // READ UID
 #define CMD_READ_UID_REQUEST (0x0002u)
 #define CMD_READ_UID_RESPONSE (0x0003u)
-typedef struct 
+typedef struct
 {
     uint8_t uid[12];
 } cmd_read_uid_response_t;
@@ -31,7 +31,7 @@ typedef struct
 // READ TEMPERATURE
 #define CMD_READ_TEMPERATURE_REQUEST (0x0004u)
 #define CMD_READ_TEMPERATURE_RESPONSE (0x0005u)
-typedef struct 
+typedef struct
 {
     float temperature;
 } cmd_read_temperature_response_t;
@@ -40,6 +40,7 @@ typedef struct
 #define CMD_LINEAR_ACTUATOR_RESPONSE (0x0006u)
 typedef struct
 {
+    uint8_t id;
     uint16_t target_position;
     uint16_t current_position;
     uint8_t temperature;
@@ -122,7 +123,7 @@ typedef struct
 
 // SET_MAESTRO_CHANNEL
 #define CMD_SET_MAESTRO_CHANNEL (0x0104u)
-typedef struct 
+typedef struct
 {
     uint8_t channel;
     uint16_t target;    //units: quarter-microseconds
@@ -130,14 +131,14 @@ typedef struct
 
 // SET_MAESTRO_ALL_CHANNEL
 #define CMD_SET_MAESTRO_ALL_CHANNEL (0x0105u)
-typedef struct 
+typedef struct
 {
     uint16_t targets[24];    //units: quarter-microseconds
 } cmd_set_maestro_all_channel_t;
 
 // LINEAR_ACTUATOR_SET_TARGET_SILENT
 #define CMD_LINEAR_ACTUATOR_SET_TARGET_SILENT (0x0106u)
-typedef struct 
+typedef struct
 {
     uint8_t id;
     uint16_t target;
@@ -145,7 +146,7 @@ typedef struct
 
 // LINEAR_ACTUATOR_FOLLOW_SILENT
 #define CMD_LINEAR_ACTUATOR_FOLLOW_SILENT (0x0107u)
-typedef struct 
+typedef struct
 {
     uint8_t id;
     uint16_t target;
@@ -153,7 +154,7 @@ typedef struct
 
 // LINEAR_ACTUATOR_BROADCAST_TARGETS
 #define CMD_LINEAR_ACTUATOR_BROADCAST_TARGETS (0x0108u)
-typedef struct 
+typedef struct
 {
     uint8_t num;
     uint8_t ids[10];
@@ -162,7 +163,7 @@ typedef struct
 
 // LINEAR_ACTUATOR_BROADCAST_FOLLOWS
 #define CMD_LINEAR_ACTUATOR_BROADCAST_FOLLOWS (0x0109u)
-typedef struct 
+typedef struct
 {
     uint8_t num;
     uint8_t ids[10];

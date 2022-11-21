@@ -54,131 +54,131 @@ namespace serial {
 
     class serial::Serial::SerialImpl {
     public:
-        SerialImpl(const string &port,
-                   unsigned long baudrate,
-                   bytesize_t bytesize,
-                   parity_t parity,
-                   stopbits_t stopbits,
-                   flowcontrol_t flowcontrol);
+        SerialImpl (const string &port,
+                    unsigned long baudrate,
+                    bytesize_t bytesize,
+                    parity_t parity,
+                    stopbits_t stopbits,
+                    flowcontrol_t flowcontrol);
 
-        virtual ~SerialImpl();
-
-        void
-        open();
+        virtual ~SerialImpl ();
 
         void
-        close();
+        open ();
+
+        void
+        close ();
 
         bool
-        isOpen() const;
+        isOpen () const;
 
         size_t
-        available();
+        available ();
 
         bool
-        waitReadable(uint32_t timeout);
+        waitReadable (uint32_t timeout);
 
         void
-        waitByteTimes(size_t count);
+        waitByteTimes (size_t count);
 
         size_t
-        read(uint8_t *buf, size_t size = 1);
+        read (uint8_t *buf, size_t size = 1);
 
         size_t
-        write(const uint8_t *data, size_t length);
+        write (const uint8_t *data, size_t length);
 
         void
-        flush();
+        flush ();
 
         void
-        flushInput();
+        flushInput ();
 
         void
-        flushOutput();
+        flushOutput ();
 
         void
-        sendBreak(int duration);
+        sendBreak (int duration);
 
         void
-        setBreak(bool level);
+        setBreak (bool level);
 
         void
-        setRTS(bool level);
+        setRTS (bool level);
 
         void
-        setDTR(bool level);
+        setDTR (bool level);
 
         bool
-        waitForChange();
+        waitForChange ();
 
         bool
-        getCTS();
+        getCTS ();
 
         bool
-        getDSR();
+        getDSR ();
 
         bool
-        getRI();
+        getRI ();
 
         bool
-        getCD();
+        getCD ();
 
         void
-        setPort(const string &port);
+        setPort (const string &port);
 
         string
-        getPort() const;
+        getPort () const;
 
         void
-        setTimeout(Timeout &timeout);
+        setTimeout (Timeout &timeout);
 
         Timeout
-        getTimeout() const;
+        getTimeout () const;
 
         void
-        setBaudrate(unsigned long baudrate);
+        setBaudrate (unsigned long baudrate);
 
         unsigned long
-        getBaudrate() const;
+        getBaudrate () const;
 
         void
-        setBytesize(bytesize_t bytesize);
+        setBytesize (bytesize_t bytesize);
 
         bytesize_t
-        getBytesize() const;
+        getBytesize () const;
 
         void
-        setParity(parity_t parity);
+        setParity (parity_t parity);
 
         parity_t
-        getParity() const;
+        getParity () const;
 
         void
-        setStopbits(stopbits_t stopbits);
+        setStopbits (stopbits_t stopbits);
 
         stopbits_t
-        getStopbits() const;
+        getStopbits () const;
 
         void
-        setFlowcontrol(flowcontrol_t flowcontrol);
+        setFlowcontrol (flowcontrol_t flowcontrol);
 
         flowcontrol_t
-        getFlowcontrol() const;
+        getFlowcontrol () const;
 
         void
-        readLock();
+        readLock ();
 
         void
-        readUnlock();
+        readUnlock ();
 
         void
-        writeLock();
+        writeLock ();
 
         void
-        writeUnlock();
+        writeUnlock ();
 
     protected:
-        void reconfigurePort();
+        void reconfigurePort ();
 
     private:
         wstring port_;               // Path to the file descriptor
@@ -199,9 +199,8 @@ namespace serial {
         // Mutex used to lock the write functions
         HANDLE write_mutex;
 
-        OVERLAPPED ov_read;
-        OVERLAPPED ov_write;
-
+        OVERLAPPED ov_read;           // OVERLAPPED read
+        OVERLAPPED ov_write;          // OVERLAPPED write
     };
 
 }

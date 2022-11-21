@@ -58,6 +58,8 @@ void HumanoidSDK::communication() {
                     fmt::print(stderr, "Cannot open serial: {}, {}\n", serial_name, e.what());
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
+            } else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
         }
         else {

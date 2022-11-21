@@ -22,7 +22,7 @@ if (WIN32)
 endif ()
 
 add_subdirectory(third_party/fmt)
-add_subdirectory(third_party/serial)
+add_subdirectory(third_party/serial_lite)
 add_subdirectory(third_party/pybind11)
 
 aux_source_directory(src SDK_SRCS)

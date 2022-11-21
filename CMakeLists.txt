@@ -1,25 +1,40 @@
 cmake_minimum_required(VERSION 3.10)
 project(humanoid_sdk C CXX)
 
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE RelWithDebInfo)
+if(NOT DEFINED CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
-if(NOT BUILD_EXAMPLES)
+if(NOT DEFINED BUILD_EXAMPLES)
     set(BUILD_EXAMPLES ON)
 endif()
 
-if(NOT BUILD_PYTHON_BINDINGS)
+if(NOT DEFINED BUILD_PYTHON_BINDINGS)
     set(BUILD_PYTHON_BINDINGS ON)
 endif()
 
+if (NOT DEFINED BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS OFF)
+endif ()
+
+if (UNIX AND NOT APPLE)
+    add_compile_options(-fPIC)
+endif ()
+
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
-if (WIN32)
-    add_link_options(-static)
-endif ()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/shared)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/static)
+set(CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_module")
+
+include(PrintCmakeVariables)
+
+print_cmake_variables()
 
 add_subdirectory(third_party/fmt)
 add_subdirectory(third_party/serial_lite)
@@ -28,11 +43,28 @@ add_subdirectory(third_party/pybind11)
 aux_source_directory(src SDK_SRCS)
 add_library(humanoid_sdk ${SDK_SRCS})
 target_include_directories(humanoid_sdk PUBLIC include)
+add_dependencies(humanoid_sdk fmt::fmt serial)
 target_link_libraries(humanoid_sdk PUBLIC fmt::fmt serial)
 
 add_subdirectory(wrappers)
 add_subdirectory(examples)
 
-unset(CMAKE_BUILD_TYPE CACHE)
-unset(BUILD_EXAMPLES CACHE)
-unset(BUILD_PYTHON_BINDINGS CACHE)
+install(TARGETS humanoid_sdk
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib/shared
+        ARCHIVE DESTINATION lib/static
+        PUBLIC_HEADER DESTINATION include
+        )
+
+if(MINGW)
+    message(STATUS "Installing system-libraries: MinGW DLLs.")
+    get_filename_component(MINGW_PATH ${CMAKE_CXX_COMPILER} PATH)
+    file(GLOB MINGW_DLLS ${MINGW_PATH}/*.dll)
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${MINGW_DLLS})
+    include(InstallRequiredSystemLibraries)
+endif()
+
+if (BUILD_SHARED_LIBS)
+    install(IMPORTED_RUNTIME_ARTIFACTS fmt)
+    install(IMPORTED_RUNTIME_ARTIFACTS serial)
+endif ()

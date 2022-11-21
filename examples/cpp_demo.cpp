@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
             bool ret = sdk.read_uid(uid);
             auto et = std::chrono::high_resolution_clock::now();
             if(ret) {
-                std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(et - st).count() << std::endl;
+                std::cout << (std::chrono::duration<double>(et - st).count() * 1000.0) << " ms" << std::endl;
             } else {
                 std::cout << "Timeout." << std::endl;
             }

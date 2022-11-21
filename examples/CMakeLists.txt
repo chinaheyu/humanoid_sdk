@@ -8,4 +8,11 @@ if (BUILD_EXAMPLES)
     add_executable(cpp_demo cpp_demo.cpp)
     add_dependencies(cpp_demo humanoid_sdk)
     target_link_libraries(cpp_demo humanoid_sdk)
+
+    install(TARGETS cpp_demo
+            RUNTIME DESTINATION bin
+            LIBRARY DESTINATION lib/shared
+            ARCHIVE DESTINATION lib/static
+            PUBLIC_HEADER DESTINATION include
+            )
 endif()

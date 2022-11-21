@@ -284,7 +284,7 @@ Serial::SerialImpl::close ()
     if (is_open_) {
         // Cancel a blocking operation.
         DWORD rc;
-        WINBOOL err;
+        int err;
         err = GetOverlappedResult(fd_, &ov_read, &rc, FALSE);
         if (!err) {
             rc = GetLastError();
@@ -394,7 +394,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
     if (size > 0) {
         ResetEvent(ov_read.hEvent);
         DWORD bytes_read;
-        WINBOOL read_ok = ReadFile(fd_, buf, static_cast<DWORD>(size), &bytes_read, &ov_read);
+        int read_ok = ReadFile(fd_, buf, static_cast<DWORD>(size), &bytes_read, &ov_read);
         if (!read_ok) {
             DWORD error = GetLastError();
             if ((error != ERROR_SUCCESS) && (error != ERROR_IO_PENDING)) {
@@ -403,7 +403,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
                 THROW (IOException, ss.str().c_str());
             }
         }
-        WINBOOL result_ok = GetOverlappedResult(fd_, &ov_read, &bytes_read, TRUE);
+        int result_ok = GetOverlappedResult(fd_, &ov_read, &bytes_read, TRUE);
         if (!result_ok) {
             DWORD error = GetLastError();
             if (error != ERROR_OPERATION_ABORTED) {

@@ -1,4 +1,5 @@
 #include "timer.h"
+#include <algorithm>
 
 void TimerManagement::timer_thread_function() {
     using namespace std::literals::chrono_literals;
@@ -6,6 +7,7 @@ void TimerManagement::timer_thread_function() {
     while (running) {
         now = std::chrono::high_resolution_clock::now();
 
+        std::vector<ManagedTimer>::iterator next;
         {
             std::lock_guard<std::mutex> lock(timers_mutex);
             for (auto &timer: timers) {
@@ -14,9 +16,13 @@ void TimerManagement::timer_thread_function() {
                     timer.last_time = now;
                 }
             }
+
+            next = std::max_element(timers.begin(), timers.end(), [](const ManagedTimer& a, const ManagedTimer& b){
+                return (a.last_time + a.interval) < (b.last_time + b.interval);
+            });
         }
 
-        std::this_thread::sleep_until(now + 1ms);
+        std::this_thread::sleep_until(next->last_time + next->interval);
     }
 }
 

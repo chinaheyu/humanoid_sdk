@@ -55,7 +55,7 @@ void HumanoidSDK::communication() {
                 try {
                     connect(serial_name);
                 } catch (serial::IOException &e) {
-                    fmt::print("Cannot open serial: {}, {}\n", serial_name, e.what());
+                    fmt::print(stderr, "Cannot open serial: {}, {}\n", serial_name, e.what());
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
             }
@@ -367,4 +367,3 @@ void HumanoidSDK::handle_serial_error(serial::IOException &e) {
         fmt::print(stderr, "Close serial port error: {}\n", ee.what());
     }
 }
-

@@ -3,6 +3,7 @@
 #include "humanoid_sdk.h"
 
 namespace py = pybind11;
+using namespace pybind11::literals;
 
 using humanoid_sdk::LinearActuatorFeedback;
 
@@ -162,28 +163,28 @@ PYBIND11_MODULE(py_humanoid_sdk, m) {
         .def("is_connected", &HumanoidSDK::is_connected)
         .def("read_uid", &HumanoidSDK::read_uid)
         .def("read_temperature", &HumanoidSDK::read_temperature)
-        .def("write_console", &HumanoidSDK::write_console)
+        .def("write_console", &HumanoidSDK::write_console, "s"_a)
         .def("console_output", &HumanoidSDK::console_output);
 
     py::class_<LinearActuator>(m, "LinearActuator")
         .def(py::init<>())
-        .def("set_target", &LinearActuator::set_target)
-        .def("follow", &LinearActuator::follow)
-        .def("enable", &LinearActuator::enable)
-        .def("stop", &LinearActuator::stop)
-        .def("pause", &LinearActuator::pause)
-        .def("save_parameters", &LinearActuator::save_parameters)
-        .def("query_state", &LinearActuator::query_state)
-        .def("clear_error", &LinearActuator::clear_error)
-        .def("set_target_silent", &LinearActuator::set_target_silent)
-        .def("follow_silent", &LinearActuator::follow_silent)
-        .def("broadcast_targets", &LinearActuator::broadcast_targets)
-        .def("broadcast_follows", &LinearActuator::broadcast_follows);
+        .def("set_target", &LinearActuator::set_target, "id"_a, "target"_a)
+        .def("follow", &LinearActuator::follow, "id"_a, "target"_a)
+        .def("enable", &LinearActuator::enable, "id"_a)
+        .def("stop", &LinearActuator::stop, "id"_a)
+        .def("pause", &LinearActuator::pause, "id"_a)
+        .def("save_parameters", &LinearActuator::save_parameters, "id"_a)
+        .def("query_state", &LinearActuator::query_state, "id"_a)
+        .def("clear_error", &LinearActuator::clear_error, "id"_a)
+        .def("set_target_silent", &LinearActuator::set_target_silent, "id"_a, "target"_a)
+        .def("follow_silent", &LinearActuator::follow_silent, "id"_a, "target"_a)
+        .def("broadcast_targets", &LinearActuator::broadcast_targets, "ids"_a, "targets"_a)
+        .def("broadcast_follows", &LinearActuator::broadcast_follows, "ids"_a, "targets"_a);
 
     py::class_<Maestro>(m, "Maestro")
         .def(py::init<>())
-        .def("set_channel", &Maestro::set_channel)
-        .def("set_all_channel", &Maestro::set_all_channel);
+        .def("set_channel", &Maestro::set_channel, "channel"_a, "target"_a)
+        .def("set_all_channel", &Maestro::set_all_channel, "targets"_a);
 
     py::class_<LinearActuatorFeedback>(m, "LinearActuatorFeedback")
         .def_readwrite("id", &LinearActuatorFeedback::id)

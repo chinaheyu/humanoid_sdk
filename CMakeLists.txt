@@ -14,7 +14,7 @@ if(NOT DEFINED BUILD_PYTHON_BINDINGS)
 endif()
 
 if (NOT DEFINED BUILD_SHARED_LIBS)
-    set(BUILD_SHARED_LIBS OFF)
+    set(BUILD_SHARED_LIBS ON)
 endif ()
 
 if (UNIX AND NOT APPLE)
@@ -40,21 +40,50 @@ add_subdirectory(third_party/fmt)
 add_subdirectory(third_party/serial_lite)
 add_subdirectory(third_party/pybind11)
 
+file(GLOB SDK_HDRS include/*.*)
 aux_source_directory(src SDK_SRCS)
-add_library(humanoid_sdk ${SDK_SRCS})
-target_include_directories(humanoid_sdk PUBLIC include)
-add_dependencies(humanoid_sdk fmt::fmt serial)
-target_link_libraries(humanoid_sdk PUBLIC fmt::fmt serial)
+
+add_library(humanoid_sdk_static STATIC ${SDK_SRCS})
+add_dependencies(humanoid_sdk_static fmt::fmt-header-only serial)
+set_target_properties(humanoid_sdk_static PROPERTIES OUTPUT_NAME humanoid_sdk)
+target_include_directories(humanoid_sdk_static PUBLIC include)
+target_link_libraries(humanoid_sdk_static PUBLIC fmt::fmt-header-only serial)
+
+add_library(humanoid_sdk_shared SHARED ${SDK_SRCS})
+add_dependencies(humanoid_sdk_shared fmt::fmt-header-only serial)
+set_target_properties(humanoid_sdk_shared PROPERTIES OUTPUT_NAME humanoid_sdk)
+target_include_directories(humanoid_sdk_shared PUBLIC include)
+target_link_libraries(humanoid_sdk_shared PUBLIC fmt::fmt-header-only serial)
+
+add_library(humanoid_sdk_interface INTERFACE)
+set_target_properties(humanoid_sdk_interface PROPERTIES PUBLIC_HEADER "${SDK_HDRS}")
+
+if (BUILD_SHARED_LIBS)
+    add_library(humanoid_sdk ALIAS humanoid_sdk_shared)
+else()
+    add_library(humanoid_sdk ALIAS humanoid_sdk_static)
+endif ()
 
 add_subdirectory(wrappers)
 add_subdirectory(examples)
 
-install(TARGETS humanoid_sdk
+install(TARGETS humanoid_sdk_static
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib/shared
         ARCHIVE DESTINATION lib/static
-        PUBLIC_HEADER DESTINATION include
-        )
+        PUBLIC_HEADER DESTINATION include)
+
+install(TARGETS humanoid_sdk_shared
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib/shared
+        ARCHIVE DESTINATION lib/static
+        PUBLIC_HEADER DESTINATION include)
+
+install(TARGETS humanoid_sdk_interface
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib/shared
+        ARCHIVE DESTINATION lib/static
+        PUBLIC_HEADER DESTINATION include)
 
 if(MINGW)
     message(STATUS "Installing system-libraries: MinGW DLLs.")
@@ -64,7 +93,3 @@ if(MINGW)
     include(InstallRequiredSystemLibraries)
 endif()
 
-if (BUILD_SHARED_LIBS)
-    install(IMPORTED_RUNTIME_ARTIFACTS fmt)
-    install(IMPORTED_RUNTIME_ARTIFACTS serial)
-endif ()

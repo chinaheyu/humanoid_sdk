@@ -35,7 +35,7 @@ else()
 endif()
 
 ## Add serial library
-add_library(${PROJECT_NAME} ${serial_SRCS})
+add_library(${PROJECT_NAME} STATIC ${serial_SRCS})
 
 ## Add unicode support
 if(WIN32)
